@@ -4,7 +4,7 @@ const login = async (login: string, password: string) => {
         const requestData = { login, hashed_password: password };
         console.log("Отправляем запрос:", JSON.stringify(requestData));
 
-        const response = await API.post("/auth/login", requestData, {
+        const response = await API.post("/login", requestData, {
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json",

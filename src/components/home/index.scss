@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+$primary-color: #14a800;
+$red: #ff4d4f;
+$gray: #f8f9fa;
+$border-radius: 10px;
+
+.home-container {
+    font-family: 'Inter', sans-serif;
+    max-width: 400px;
+
+    margin: auto;
+    margin-top: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .avatar {
+            font-size: 30px;
+            color: #555;
+        }
+
+        .username {
+            font-size: 18px;
+            font-weight: 600;
+        }
+    }
+
+    .calendar-icon {
+        font-size: 24px;
+        cursor: pointer;
+        color: #132dd6;
+        transition: 0.3s;
+    }
+
+    .calendar-icon:hover {
+        color: $primary-color;
+
+    }
+}
+
+
+.balance-card {
+    background: $primary-color;
+    color: white;
+    padding: 15px;
+    border-radius: $border-radius;
+    text-align: center;
+    font-size: 18px;
+
+    .balance {
+        font-size: 22px;
+        font-weight: 600;
+    }
+
+    .balance-text {
+        font-size: 14px;
+    }
+}
+
+// Статистика
+.stats {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+
+    .stat-card {
+        flex: 1;
+        background: $gray;
+        padding: 15px;
+        border-radius: $border-radius;
+        text-align: center;
+
+        .stat-title {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .red {
+            color: $red;
+        }
+
+        .green {
+            color: $primary-color;
+        }
+    }
+}
+
+.wallet-icon {
+    border-radius: 24px;
+    padding: 12px;
+    width: 48px;
+    height: 48px;
+    background: rgba(115, 92, 216, 0.1);
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+    justify-content: center;
+}
+
+.wallet {
+    margin-top: 20px;
+    padding: 15px;
+    background: $gray;
+    border-radius: $border-radius;
+    position: relative;
+    display: flex;
+    align-items: center;
+
+
+    h3 {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    .wallet-amount {
+        font-size: 18px;
+        font-family: var(--font-family);
+        font-weight: 700;
+        font-size: 24px;
+        color: #000;
+    }
+
+    .wallet-status {
+        font-size: 14px;
+        color: $primary-color;
+    }
+
+    .add-icon {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 20px;
+        color: $primary-color;
+        cursor: pointer;
+    }
+}
+
+.this-month-box {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+    P:nth-child(1) {
+        font-family: var(--font-family);
+        font-weight: 500;
+        font-size: 14px;
+        color: #000;
+    }
+
+    P:nth-child(2) {
+        font-family: var(--font-family);
+        font-weight: 600;
+        font-size: 14px;
+        color: #30af49;
+    }
+}
+
+.bottom-nav {
+    display: flex;
+    border-top: 1px solid #ddd;
+    width: auto;
+
+    .nav-item {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        font-size: 16px;
+
+        cursor: pointer;
+
+
+        &.active {
+            color: #132dd6;
+            font-weight: 600;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            width: 40px;
+            display: flex;
+        }
+    }
+}
