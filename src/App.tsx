@@ -1,19 +1,30 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/privateRoute";
 import HomePage from "./components/home";
 import LoginPage from "./components/login";
+import Loading from "./components/loading"
+
 
 
 function App() {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  }, []);
+  if (loading) {
+    return <Loading />;
+  }
   return (
+
     <AuthProvider>
       <Router>
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/login" element={<LoginPage />} />
-
-
           <Route element={<PrivateRoute />}>
             <Route path="/home" element={<HomePage />} />
           </Route>
