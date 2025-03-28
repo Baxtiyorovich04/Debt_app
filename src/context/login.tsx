@@ -1,6 +1,7 @@
+import type { AxiosInstance } from "axios";
 import API from "../utils/API";
 
-const login = async (login: string, password: string) => {
+const login = async (login: string, password: string): Promise<boolean> => {
     try {
         const requestData = {
             login: login,
