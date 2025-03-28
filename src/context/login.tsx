@@ -1,6 +1,4 @@
 import API from "../utils/API";
-import { useAuth } from "./AuthContext";
-import { useNavigate } from "react-router-dom";
 
 const login = async (login: string, password: string) => {
     try {
