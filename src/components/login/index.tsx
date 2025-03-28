@@ -1,11 +1,16 @@
 import { useState } from "react";
-import login from "../../context/login";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import API from "../../utils/API";
 import "./index.scss";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { FaUserEdit } from "react-icons/fa";
+
 const LoginPage = () => {
-    const [error, setError] = useState("");
     const [loginData, setLoginData] = useState({ login: "", password: "" });
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
+    const { setToken } = useAuth();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -13,22 +18,33 @@ const LoginPage = () => {
             ...prev,
             [name]: value,
         }));
+        setError("");
     };
-
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError("");
 
+        try {
+            const response = await API.post("/auth/login", {
+                login: loginData.login,
+                hashed_password: loginData.password
+            });
 
-        const result = await login(loginData.login, loginData.password);
-
-        if (!result) {
-            setError("Неправильный логин или пароль!");
+            if (response.data.accessToken) {
+                setToken(response.data.accessToken);
+                navigate('/home', { replace: true });
+            } else {
+                setError("Login yoki parol noto'g'ri!");
+            }
+        } catch (error: any) {
+            console.error("Login error:", error);
+            setError("Tizimga kirishda xatolik yuz berdi");
         }
     };
 
-    console.log(loginData);
     const isFormValid = loginData.login.trim() !== "" && loginData.password.trim() !== "";
+
     return (
         <div className="login-box">
             <div className="login-inputs">
@@ -36,12 +52,10 @@ const LoginPage = () => {
                 <h1>Dasturga kirish</h1>
                 <p>Iltimos, tizimga kirish uchun login va parolingizni kiriting.</p>
                 <form onSubmit={handleSubmit}>
-
                     <label htmlFor="login">Login</label>
                     <div style={{ width: "100%", position: "relative" }}>
                         <FaUserEdit className="user-log-icon" />
                         <input
-
                             type="text"
                             name="login"
                             placeholder="login"
@@ -64,13 +78,13 @@ const LoginPage = () => {
                         />
                     </div>
 
-
-                    <button type="submit" disabled={!isFormValid}>Kirish</button>
+                    <button type="submit" disabled={!isFormValid}>
+                        Kirish
+                    </button>
                 </form>
-                {error && <p style={{ color: "red" }}>{error}</p>}
+                {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
             </div>
         </div>
-
     );
 };
 

@@ -4,9 +4,8 @@ import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/privateRoute";
 import HomePage from "./components/home";
 import LoginPage from "./components/login";
-import Loading from "./components/loading"
-
-
+import Loading from "./components/loading";
+import ClientsPage from "./components/clients";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -19,7 +18,6 @@ function App() {
     return <Loading />;
   }
   return (
-
     <AuthProvider>
       <Router>
         <Routes>
@@ -27,6 +25,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route element={<PrivateRoute />}>
             <Route path="/home" element={<HomePage />} />
+            <Route path="/clients" element={<ClientsPage />} />
           </Route>
         </Routes>
       </Router>

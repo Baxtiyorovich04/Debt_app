@@ -29,7 +29,6 @@
         font-size: 32px;
         line-height: 40px;
         color: #000000;
-
     }
 
     p {
@@ -52,6 +51,7 @@
 
         button:disabled {
             opacity: 0.5;
+            cursor: not-allowed;
         }
 
         button {
@@ -90,7 +90,6 @@
 
         input {
             border: 1px solid #ededed;
-
             border-radius: 12px;
             padding: 20px 35px;
             width: 100%;
@@ -103,5 +102,11 @@
                 border: 2px solid #78a5fa;
             }
         }
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
     }
 }

@@ -1,43 +1,34 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import API from "../utils/API";
 
 interface AuthContextType {
     token: string | null;
-    login: (email: string, password: string) => Promise<boolean>;
+    setToken: (token: string | null) => void;
     logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
-
-    const login = async (email: string, password: string) => {
-        try {
-            const response = await fetch("/aouth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
-            });
-
-            if (!response.ok) throw new Error("Invalid credentials");
-
-            const data = await response.json();
-            setToken(data.token);
-            localStorage.setItem("token", data.token);
-            return true;
-        } catch (error) {
-            console.error("Login failed:", error);
-            return false;
-        }
-    };
+    // Initialize with localStorage token
+    const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
 
     const logout = () => {
         setToken(null);
         localStorage.removeItem("token");
     };
 
+    // Update localStorage when token changes
+    useEffect(() => {
+        if (token) {
+            localStorage.setItem("token", token);
+        } else {
+            localStorage.removeItem("token");
+        }
+    }, [token]);
+
     return (
-        <AuthContext.Provider value={{ token, login, logout }}>
+        <AuthContext.Provider value={{ token, setToken, logout }}>
             {children}
         </AuthContext.Provider>
     );

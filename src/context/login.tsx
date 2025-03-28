@@ -1,31 +1,31 @@
 import API from "../utils/API";
+import { useAuth } from "./AuthContext";
+import { useNavigate } from "react-router-dom";
+
 const login = async (login: string, password: string) => {
     try {
-        const requestData = { login, hashed_password: password };
-        console.log("Отправляем запрос:", JSON.stringify(requestData));
+        const requestData = {
+            login: login,
+            hashed_password: password 
+        };
 
-        const response = await API.post("/login", requestData, {
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            }
+        const response = await API.post("/auth/login", requestData, {
+            headers: { "Content-Type": "application/json" }
         });
 
-        console.log("Успешный вход:", response.data);
-
-        if (response.data.token) {
-            localStorage.setItem("token", response.data.token);
+        if (response.data.accessToken) {
+            localStorage.setItem("token", response.data.accessToken);
+            window.location.href = '/home';
+            return true;
         }
 
-        return response.data;
+        return false;
     } catch (error: any) {
-        console.error("Ошибка авторизации:", error);
-
+        console.error("Authentication error:", error);
         if (error.response) {
-            console.error("Ответ от сервера:", error.response.data);
+            console.error("Server response:", error.response.data);
         }
-
-        return null;
+        return false;
     }
 };
 
