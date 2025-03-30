@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Input, Layout, Menu, Drawer, DatePicker } from "antd";
+import { Input, Layout, Menu, Drawer, DatePicker, Spin, Alert } from "antd";
 import { SearchOutlined, CalendarOutlined, UserOutlined } from '@ant-design/icons';
 import { AiOutlineStar,  } from 'react-icons/ai';
 import { FaHome } from "react-icons/fa";
@@ -9,7 +9,6 @@ import { IoMdSettings } from "react-icons/io";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../utils/API";
-import Loading from "../loading";
 import './index.scss';
 
 const { Sider, Content } = Layout;
@@ -30,14 +29,7 @@ interface Debtor {
     id: string;
     full_name: string;
     phone_number: string;
-    next_payment_date: string;
-    debt_period: number;
-    debt_sum: string;
-    total_debt_sum: number;
-    description: string;
-    images: Array<{ image: string }>;
-    debtor: string;
-    debt_status: string;
+    debt_sum: number;
     created_at: string;
     updated_at: string;
 }
@@ -51,6 +43,7 @@ const ClientsPage = () => {
     const [debtors, setDebtors] = useState<Debtor[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const menuItems = [
         {
@@ -93,17 +86,19 @@ const ClientsPage = () => {
         };
 
         const fetchDebtors = async () => {
+            setIsLoading(true);
             try {
                 const response = await API.get("/debtor?skip=0&take=10", {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
-                console.log("Debtors API response:", response.data);
                 setDebtors(response.data.data);
             } catch (error: any) {
                 console.error("Error fetching debtors:", error);
                 setError("Mijozlar ma'lumotlarini yuklashda xatolik yuz berdi");
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -113,12 +108,8 @@ const ClientsPage = () => {
         }
     }, [token]);
 
-    if (error) {
-        return <div className="error-message">{error}</div>;
-    }
-
     if (!userData) {
-        return <Loading />;
+        return <Spin size="large" className="loading-spinner" />;
     }
 
     return (
@@ -144,6 +135,17 @@ const ClientsPage = () => {
                 </header>
                 <Content className="content">
                     <div className="clients-page">
+                        {error && (
+                            <Alert
+                                message={error}
+                                type="error"
+                                showIcon
+                                closable
+                                onClose={() => setError(null)}
+                                style={{ marginBottom: 16 }}
+                            />
+                        )}
+                        
                         <div className="search-container">
                             <Input
                                 prefix={<SearchOutlined />}
@@ -160,9 +162,12 @@ const ClientsPage = () => {
                         </div>
 
                         <div className="clients-list">
-                            {debtors.map(debtor => {
-                                console.log("Debtor data:", debtor);
-                                return (
+                            {isLoading ? (
+                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                                    <Spin size="large" />
+                                </div>
+                            ) : (
+                                debtors.map(debtor => (
                                     <div key={debtor.id} className="client-card">
                                         <div className="client-info">
                                             <h3 className="client-name">{debtor.full_name}</h3>
@@ -170,22 +175,19 @@ const ClientsPage = () => {
                                             <p className="client-debt">
                                                 Jami nasiya:
                                                 <span className="amount">
-                                                    {debtor.total_debt_sum ? Math.abs(Number(debtor.total_debt_sum)).toLocaleString() : '0'} so'm
+                                                    {debtor.debt_sum ? Math.abs(debtor.debt_sum).toLocaleString() : '0'} so'm
                                                 </span>
-                                            </p>
-                                            <p className="client-next-payment">
-                                                Keyingi to'lov: {debtor.next_payment_date ? new Date(debtor.next_payment_date).toLocaleDateString('uz-UZ') : 'Belirtilmagan'}
                                             </p>
                                         </div>
                                         <button className="favorite-button">
                                             <AiOutlineStar className="star-icon" />
                                         </button>
                                     </div>
-                                );
-                            })}
+                                ))
+                            )}
                         </div>
 
-                        <button className="add-client-button">
+                        <button className="add-client-button" onClick={() => navigate('add')}>
                             <span className="icon">+</span>
                             Yaratish
                         </button>

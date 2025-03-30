@@ -10,7 +10,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    // Initialize with localStorage token
+
     const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
 
     const logout = () => {
@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem("token");
     };
 
-    // Update localStorage when token changes
     useEffect(() => {
         if (token) {
             localStorage.setItem("token", token);

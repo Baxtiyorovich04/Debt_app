@@ -6,6 +6,7 @@ import HomePage from "./components/home";
 import LoginPage from "./components/login";
 import Loading from "./components/loading";
 import ClientsPage from "./components/clients";
+import AddClient from "./components/clients/AddClient";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -26,6 +27,7 @@ function App() {
           <Route element={<PrivateRoute />}>
             <Route path="/home" element={<HomePage />} />
             <Route path="/clients" element={<ClientsPage />} />
+            <Route path="clients/add" element={<AddClient />} />
           </Route>
         </Routes>
       </Router>
