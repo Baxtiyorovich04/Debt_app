@@ -117,30 +117,47 @@
     }
 
     .clients-list {
-        flex: 1;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 80px;
+        position: relative;
+        padding: 16px;
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
 
         .client-card {
-            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fff;
             border-radius: 12px;
             padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
 
             .client-info {
                 flex: 1;
 
                 .client-name {
-                    font-size: 16px;
-                    font-weight: 500;
-                    color: #000;
-                    margin: 0 0 4px 0;
+                    font-size: 18px;
+                    font-weight: 600;
+                    margin: 0 0 8px 0;
+                    color: #333;
                 }
 
                 .client-phone {
@@ -151,12 +168,14 @@
 
                 .client-debt {
                     font-size: 14px;
-                    color: #666;
                     margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
 
                     .amount {
-                        color: #ff4d4f;
-                        margin-left: 4px;
+                        font-weight: 600;
+                        color: #1890ff;
                     }
                 }
             }
@@ -164,19 +183,17 @@
             .favorite-button {
                 background: none;
                 border: none;
-                padding: 4px;
                 cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                padding: 8px;
+                color: #ffd700;
+                transition: transform 0.2s ease;
+
+                &:hover {
+                    transform: scale(1.1);
+                }
 
                 .star-icon {
                     font-size: 20px;
-                    color: #d9d9d9;
-
-                    &.filled {
-                        color: #faad14;
-                    }
                 }
             }
         }

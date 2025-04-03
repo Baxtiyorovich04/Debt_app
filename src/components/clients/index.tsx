@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Input, Layout, Menu, Drawer, DatePicker, Spin, Alert } from "antd";
 import { SearchOutlined, CalendarOutlined, UserOutlined } from '@ant-design/icons';
-import { AiOutlineStar,  } from 'react-icons/ai';
+import { AiOutlineStar } from 'react-icons/ai';
 import { FaHome } from "react-icons/fa";
 import { FaUsersLine } from "react-icons/fa6";
 import { FaFolder } from "react-icons/fa";
@@ -108,6 +108,10 @@ const ClientsPage = () => {
         }
     }, [token]);
 
+    const handleClientClick = (debtorId: string) => {
+        navigate(`/clients/${debtorId}`);
+    };
+
     if (!userData) {
         return <Spin size="large" className="loading-spinner" />;
     }
@@ -162,28 +166,37 @@ const ClientsPage = () => {
                         </div>
 
                         <div className="clients-list">
-                            {isLoading ? (
-                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                            {debtors.map(debtor => (
+                                <div 
+                                    key={debtor.id} 
+                                    className="client-card"
+                                    onClick={() => handleClientClick(debtor.id)}
+                                >
+                                    <div className="client-info">
+                                        <h3 className="client-name">{debtor.full_name}</h3>
+                                        <p className="client-phone">{debtor.phone_number}</p>
+                                        <p className="client-debt">
+                                            Jami nasiya:
+                                            <span className="amount">
+                                                {debtor.debt_sum ? Math.abs(debtor.debt_sum).toLocaleString() : '0'} so'm
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <button 
+                                        className="favorite-button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            // Handle favorite toggle
+                                        }}
+                                    >
+                                        <AiOutlineStar className="star-icon" />
+                                    </button>
+                                </div>
+                            ))}
+                            {isLoading && (
+                                <div className="loading-overlay">
                                     <Spin size="large" />
                                 </div>
-                            ) : (
-                                debtors.map(debtor => (
-                                    <div key={debtor.id} className="client-card">
-                                        <div className="client-info">
-                                            <h3 className="client-name">{debtor.full_name}</h3>
-                                            <p className="client-phone">{debtor.phone_number}</p>
-                                            <p className="client-debt">
-                                                Jami nasiya:
-                                                <span className="amount">
-                                                    {debtor.debt_sum ? Math.abs(debtor.debt_sum).toLocaleString() : '0'} so'm
-                                                </span>
-                                            </p>
-                                        </div>
-                                        <button className="favorite-button">
-                                            <AiOutlineStar className="star-icon" />
-                                        </button>
-                                    </div>
-                                ))
                             )}
                         </div>
 

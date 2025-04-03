@@ -7,6 +7,7 @@ import LoginPage from "./components/login";
 import Loading from "./components/loading";
 import ClientsPage from "./components/clients";
 import AddClient from "./components/clients/AddClient";
+import ClientDetailPage from "./components/clients/ClientDetail";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -28,6 +29,7 @@ function App() {
             <Route path="/home" element={<HomePage />} />
             <Route path="/clients" element={<ClientsPage />} />
             <Route path="clients/add" element={<AddClient />} />
+            <Route path="clients/:id" element={<ClientDetailPage />} />
           </Route>
         </Routes>
       </Router>
