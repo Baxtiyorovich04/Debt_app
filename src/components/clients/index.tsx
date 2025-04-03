@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Input, Layout, Menu, Drawer, DatePicker, Spin, Alert } from "antd";
-import { SearchOutlined, CalendarOutlined, UserOutlined } from '@ant-design/icons';
+import { Input, Layout, Menu, Drawer, DatePicker, Spin, Alert, Button } from "antd";
+import { SearchOutlined, CalendarOutlined, UserOutlined, PlusOutlined } from '@ant-design/icons';
 import { AiOutlineStar } from 'react-icons/ai';
 import { FaHome } from "react-icons/fa";
 import { FaUsersLine } from "react-icons/fa6";
@@ -10,6 +10,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../utils/API";
 import './index.scss';
+import { message } from "antd";
 
 const { Sider, Content } = Layout;
 
@@ -43,7 +44,7 @@ const ClientsPage = () => {
     const [debtors, setDebtors] = useState<Debtor[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     const menuItems = [
         {
@@ -86,19 +87,20 @@ const ClientsPage = () => {
         };
 
         const fetchDebtors = async () => {
-            setIsLoading(true);
+            setLoading(true);
             try {
-                const response = await API.get("/debtor?skip=0&take=10", {
+                const response = await API.get("/debtor", {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
-                setDebtors(response.data.data);
+                setDebtors(response.data.data || []);
             } catch (error: any) {
                 console.error("Error fetching debtors:", error);
                 setError("Mijozlar ma'lumotlarini yuklashda xatolik yuz berdi");
+                message.error("Mijozlar ma'lumotlarini yuklashda xatolik yuz berdi");
             } finally {
-                setIsLoading(false);
+                setLoading(false);
             }
         };
 
@@ -110,6 +112,25 @@ const ClientsPage = () => {
 
     const handleClientClick = (debtorId: string) => {
         navigate(`/clients/${debtorId}`);
+    };
+
+    const formatAmount = (amount: number | undefined | null) => {
+        if (amount === undefined || amount === null) {
+            return '0.00';
+        }
+        return amount.toLocaleString('uz-UZ', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
+    };
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('uz-UZ', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
     };
 
     if (!userData) {
@@ -139,71 +160,52 @@ const ClientsPage = () => {
                 </header>
                 <Content className="content">
                     <div className="clients-page">
-                        {error && (
-                            <Alert
-                                message={error}
-                                type="error"
-                                showIcon
-                                closable
-                                onClose={() => setError(null)}
-                                style={{ marginBottom: 16 }}
-                            />
-                        )}
-                        
-                        <div className="search-container">
-                            <Input
-                                prefix={<SearchOutlined />}
-                                placeholder="Mijozlarni qidirish..."
-                                className="search-input"
-                            />
-                            <button className="filter-button">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 7H21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                                    <path d="M6 12H18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                                    <path d="M10 17H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                                </svg>
-                            </button>
+                        <div className="clients-header">
+                            <h1>Mijozlar</h1>
+                            <Button 
+                                type="primary" 
+                                icon={<PlusOutlined />}
+                                onClick={() => navigate('/clients/add')}
+                            >
+                                Mijoz qo'shish
+                            </Button>
                         </div>
 
-                        <div className="clients-list">
-                            {debtors.map(debtor => (
-                                <div 
-                                    key={debtor.id} 
-                                    className="client-card"
-                                    onClick={() => handleClientClick(debtor.id)}
-                                >
-                                    <div className="client-info">
-                                        <h3 className="client-name">{debtor.full_name}</h3>
-                                        <p className="client-phone">{debtor.phone_number}</p>
-                                        <p className="client-debt">
-                                            Jami nasiya:
-                                            <span className="amount">
-                                                {debtor.debt_sum ? Math.abs(debtor.debt_sum).toLocaleString() : '0'} so'm
-                                            </span>
-                                        </p>
-                                    </div>
-                                    <button 
-                                        className="favorite-button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            // Handle favorite toggle
-                                        }}
+                        {loading ? (
+                            <div className="clients-loading">
+                                <Spin size="large" />
+                            </div>
+                        ) : error ? (
+                            <div className="clients-error">
+                                {error}
+                            </div>
+                        ) : (
+                            <div className="clients-list">
+                                {debtors.map((debtor) => (
+                                    <div 
+                                        key={debtor.id} 
+                                        className="client-card"
+                                        onClick={() => handleClientClick(debtor.id)}
                                     >
-                                        <AiOutlineStar className="star-icon" />
-                                    </button>
-                                </div>
-                            ))}
-                            {isLoading && (
-                                <div className="loading-overlay">
-                                    <Spin size="large" />
-                                </div>
-                            )}
-                        </div>
-
-                        <button className="add-client-button" onClick={() => navigate('add')}>
-                            <span className="icon">+</span>
-                            Yaratish
-                        </button>
+                                        <div className="client-info">
+                                            <h3>{debtor.full_name}</h3>
+                                            <p className="phone">{debtor.phone_number}</p>
+                                            <p className="debt">Nasiya: {formatAmount(debtor.debt_sum)} so'm</p>
+                                            <p className="date">Qo'shilgan: {formatDate(debtor.created_at)}</p>
+                                        </div>
+                                        <button 
+                                            className="favorite-button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                // Handle favorite toggle
+                                            }}
+                                        >
+                                            <AiOutlineStar className="star-icon" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </Content>
             </Layout>
