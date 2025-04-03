@@ -7,6 +7,7 @@ import API from '../../utils/API';
 import './ClientDetail.scss';
 import type { UploadFile } from 'antd/es/upload/interface';
 import dayjs from 'dayjs';
+import { validate as uuidValidate } from 'uuid';
 
 interface Debt {
     id: string;
@@ -18,6 +19,7 @@ interface Debt {
     next_payment_date: string;
     debt_period: number;
     description: string;
+    debtor: string;
 }
 
 interface ClientDetail {
@@ -59,8 +61,21 @@ const ClientDetailPage = () => {
     const [editForm] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
 
+    // Validate UUID format
+    const isValidUUID = (uuid: string | undefined): boolean => {
+        if (!uuid) return false;
+        return uuidValidate(uuid);
+    };
+
     const fetchClientData = async () => {
+        if (!id || !isValidUUID(id)) {
+            setError('Noto\'g\'ri mijoz ID formati');
+            setLoading(false);
+            return;
+        }
+
         try {
+            console.log('Fetching data for client ID:', id);
             const [clientResponse, debtsResponse] = await Promise.all([
                 API.get(`/debtor/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
@@ -91,23 +106,27 @@ const ClientDetailPage = () => {
     }, [id, token]);
 
     const handleAddDebt = async (values: DebtFormValues) => {
+        if (!id || !isValidUUID(id)) {
+            message.error('Noto\'g\'ri mijoz ID formati');
+            return;
+        }
+
         setSubmitting(true);
         try {
-            // Convert form values to match API requirements
             const formData = {
                 next_payment_date: dayjs(values.next_payment_date).format('YYYY-MM-DD'),
                 debt_period: parseInt(values.debt_period.toString()),
-                debt_sum: Number(values.debt_sum).toFixed(2), // Format as decimal with 2 decimal places
-                total_debt_sum: Number(values.debt_sum).toFixed(2), // Format as decimal with 2 decimal places
+                debt_sum: Number(values.debt_sum).toFixed(2),
+                total_debt_sum: Number(values.debt_sum).toFixed(2),
                 description: values.description.trim(),
                 images: values.images.length > 0 
                     ? values.images.map(file => ({ image: file.url || "" }))
-                    : [{ image: "" }, { image: "" }], // Provide two empty images if none uploaded
-                debtor: id, // Changed from debtor_id to debtor
+                    : [{ image: "" }, { image: "" }],
+                debtor: id,
                 debt_status: "active"
             };
 
-            console.log('Sending debt data:', formData); // Debug log
+            console.log('Sending debt data:', formData);
 
             const response = await API.post('/debts', formData, {
                 headers: {
@@ -116,15 +135,14 @@ const ClientDetailPage = () => {
                 }
             });
 
-            console.log('Debt creation response:', response); // Debug log
+            console.log('Debt creation response:', response);
 
             message.success('Nasiya muvaffaqiyatli qo\'shildi');
             setIsModalVisible(false);
             form.resetFields();
-            fetchClientData(); // Refresh the debts list
+            fetchClientData();
         } catch (error: any) {
             console.error('Error adding debt:', error);
-            // Show more specific error message if available
             const errorMessage = error.response?.data?.error?.message || 'Nasiya qo\'shishda xatolik yuz berdi';
             message.error(errorMessage);
         } finally {
@@ -133,35 +151,44 @@ const ClientDetailPage = () => {
     };
 
     const handleEditDebt = async (values: EditDebtFormValues) => {
-        if (!selectedDebt) return;
+        if (!selectedDebt || !id || !isValidUUID(id) || !isValidUUID(selectedDebt.id)) {
+            message.error('Noto\'g\'ri ID formati');
+            return;
+        }
         
         setSubmitting(true);
         try {
             const formData = {
                 debt_date: dayjs(values.debt_date).format('YYYY-MM-DD'),
                 debt_period: parseInt(values.debt_period.toString()),
-                debt_sum: Number(values.debt_sum).toFixed(2),
+                debt_sum: parseFloat(values.debt_sum.toString()),
+                total_debt_sum: parseFloat(values.debt_sum.toString()),
                 description: values.description.trim(),
-                debtor: id
+                debtor_id: id,
+                debt_status: selectedDebt.status || "active"
             };
 
             console.log('Sending edit debt data:', formData);
 
-            await API.put(`/debts/${selectedDebt.id}`, formData, {
+            const response = await API.put(`/debts/${selectedDebt.id}`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
+            console.log('Edit response:', response);
+
             message.success('Nasiya muvaffaqiyatli yangilandi');
             setIsEditModalVisible(false);
             editForm.resetFields();
             setSelectedDebt(null);
-            fetchClientData(); // Refresh the debts list
+            fetchClientData();
         } catch (error: any) {
             console.error('Error editing debt:', error);
-            const errorMessage = error.response?.data?.error?.message || 'Nasiyani yangilashda xatolik yuz berdi';
+            const errorMessage = error.response?.data?.error?.message 
+                || error.response?.data?.message 
+                || 'Nasiyani yangilashda xatolik yuz berdi';
             message.error(errorMessage);
         } finally {
             setSubmitting(false);
