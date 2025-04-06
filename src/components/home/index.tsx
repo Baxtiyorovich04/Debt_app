@@ -112,18 +112,18 @@ const Home = () => {
                 <Content className="content">
                     <div className="dashboard-grid">
                         <div className="balance-card">
-                            <p className="balance">135 214 200 so'm</p>
+                            <p className="balance">5 499 000 so'm</p>
                             <span className="balance-text">Umumiy nasiya:</span>
                         </div>
 
                         <div className="stats">
                             <div className="stat-card">
                                 <p className="stat-title">Kechiktirilgan to'lovlar</p>
-                                <span className="stat-value red">26</span>
+                                <span className="stat-value red">0</span>
                             </div>
                             <div className="stat-card">
                                 <p className="stat-title">Mijozlar soni</p>
-                                <span className="stat-value green">151</span>
+                                <span className="stat-value green">8</span>
                             </div>
                         </div>
 
