@@ -152,7 +152,7 @@ const Home: React.FC = () => {
 
             <Drawer title="Kalendar" placement="right" onClose={() => setIsDrawerOpen(false)} open={isDrawerOpen}>
                 <DatePicker style={{ width: "100%" }} />
-                <h1>coming soon....</h1>
+                <h1>coming soon.... dedimku coming soon ochurmen</h1>
             </Drawer>
         </Layout>
     );

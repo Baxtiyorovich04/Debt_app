@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import MainLayout from '../layout/MainLayout';
 import './SettingsPage.scss';
 
-const { Content } = Layout;
+const {  } = Layout;
 const { Title, Text } = Typography;
 
 interface SettingsItem {
