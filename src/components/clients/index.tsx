@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Layout, Button, Spin, message, Input } from "antd";
+import { Button, Spin, message, Input } from "antd";
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { AiOutlineStar } from 'react-icons/ai';
 import { useNavigate } from "react-router-dom";
@@ -7,18 +7,6 @@ import { useAuth } from "../../context/AuthContext";
 import API from "../../utils/API";
 import MainLayout from "../layout/MainLayout";
 import './index.scss';
-
-interface UserProfile {
-    id: string;
-    created_at: string;
-    updated_at: string;
-    login: string;
-    phone_number: string;
-    wallet: string;
-    image: string | null;
-    pin_code: number;
-    is_active: boolean;
-}
 
 interface Debtor {
     id: string;
@@ -77,21 +65,6 @@ const ClientsPage = () => {
     const formatAmount = (amount: number | undefined | null) => {
         const num = amount ?? 0;
         return num.toLocaleString('uz-UZ');
-    };
-
-    const formatDate = (dateString: string) => {
-        if (!dateString) return '-';
-        try {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('uz-UZ', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        } catch (e) {
-            console.error("Error formatting date:", dateString, e);
-            return 'Invalid Date';
-        }
     };
 
     const filteredDebtors = debtors;
