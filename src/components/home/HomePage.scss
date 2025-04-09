@@ -1,0 +1,171 @@
+.home-layout {
+    // Styles for sidebar and header might be duplicated if not using MainLayout
+    // Consider keeping MainLayout or moving shared styles to App.scss
+    min-height: 100vh;
+
+    .sidebar {
+        background: #fff;
+        box-shadow: 2px 0 6px rgba(0, 21, 41, 0.1);
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        .logo {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 16px;
+            h2 { margin: 0; font-size: 20px; color: #1890ff; }
+        }
+        .ant-menu { border-right: none; }
+    }
+
+    .header {
+        background: #fff;
+        padding: 0 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f0f0f0;
+        height: 64px;
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            .avatar { font-size: 24px; }
+            .username { font-weight: 500; }
+        }
+        .calendar-icon { font-size: 20px; cursor: pointer; }
+    }
+
+    .content {
+        padding: 24px;
+        background: #f0f2f5;
+    }
+}
+
+// Styles specific to the Home dashboard content
+.dashboard-grid {
+    display: grid;
+    gap: 20px;
+
+    .balance-card {
+        background: linear-gradient(135deg, #2db7f5 0%, #1890ff 100%);
+        color: white;
+        padding: 20px 24px;
+        border-radius: 12px;
+        text-align: center;
+        
+        .balance {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+        }
+        .balance-text {
+            font-size: 14px;
+            opacity: 0.85;
+        }
+    }
+
+    .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+
+        .stat-card {
+            background: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+
+            .stat-title {
+                font-size: 14px;
+                color: #595959;
+                margin: 0 0 8px 0;
+            }
+            .stat-value {
+                font-size: 24px;
+                font-weight: bold;
+                &.red { color: #ff4d4f; }
+                &.green { color: #52c41a; } // Or use #1890ff as in your previous code
+            }
+        }
+    }
+
+    .wallet-section {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+
+        h3 {
+            margin: 0 0 16px 0;
+            font-weight: 500;
+        }
+
+        .wallet {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+
+            .wallet-icon {
+                background-color: #e6f7ff;
+                border-radius: 50%;
+                width: 48px;
+                height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                color: #1890ff;
+                flex-shrink: 0;
+            }
+            
+            div:nth-child(2) { // Targeting the text container
+                 flex-grow: 1;
+            }
+
+            p {
+                margin: 0;
+            }
+            .wallet-title {
+                font-size: 14px;
+                color: #8c8c8c;
+                margin-bottom: 4px;
+            }
+            .wallet-amount {
+                font-size: 18px;
+                font-weight: 600;
+                color: #333;
+            }
+            .add-icon {
+                font-size: 28px;
+                color: #1890ff;
+                cursor: pointer;
+            }
+        }
+
+        .this-month-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #595959;
+
+            p:last-child {
+                font-weight: 500;
+                color: #52c41a; // Example color for 'paid'
+            }
+        }
+    }
+}
+
+.error-message {
+    color: #ff4d4f;
+    font-weight: bold;
+} 

@@ -1,0 +1,96 @@
+.main-layout {
+    min-height: 100vh;
+
+    .sidebar {
+        background: #fff;
+        box-shadow: 2px 0 6px rgba(0, 21, 41, 0.1);
+        position: sticky;
+        top: 0;
+        height: 100vh;
+
+        .logo {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fdfdfd;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 16px;
+
+            h2 {
+                margin: 0;
+                font-size: 20px;
+                font-weight: 600;
+                color: #1890ff; // Or your app's primary color
+            }
+        }
+
+        .ant-menu {
+            border-right: none;
+
+            .ant-menu-item {
+                font-size: 14px;
+                margin: 4px 0 !important;
+                height: 45px !important;
+                line-height: 45px !important;
+
+                .anticon {
+                    margin-right: 10px;
+                    font-size: 18px; // Adjust icon size
+                }
+
+                &.ant-menu-item-selected {
+                    background-color: #e6f7ff !important;
+                    border-right: 3px solid #1890ff;
+                    color: #1890ff;
+                }
+            }
+        }
+    }
+
+    .header {
+        background: #fff;
+        padding: 0 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f0f0f0;
+        height: 64px;
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .ant-avatar {
+                background-color: #1890ff;
+            }
+
+            .username {
+                font-weight: 500;
+                color: #333;
+            }
+        }
+
+        .calendar-icon {
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.3s;
+
+            &:hover {
+                color: #1890ff;
+            }
+        }
+    }
+
+    .content {
+        margin: 24px 16px;
+        padding: 24px;
+        background: #fff;
+        min-height: 280px;
+        border-radius: 8px; // Optional: Add border radius to content area
+        // Ensure content area doesn't overflow layout
+        overflow: auto;
+    }
+} 

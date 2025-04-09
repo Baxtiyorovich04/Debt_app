@@ -61,7 +61,6 @@ const ClientDetailPage = () => {
     const [editForm] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
 
-    // Validate UUID format
     const isValidUUID = (uuid: string | undefined): boolean => {
         if (!uuid) return false;
         return uuidValidate(uuid);
@@ -73,7 +72,8 @@ const ClientDetailPage = () => {
             setLoading(false);
             return;
         }
-
+        setLoading(true);
+        setError(null);
         try {
             console.log('Fetching data for client ID:', id);
             const [clientResponse, debtsResponse] = await Promise.all([
@@ -91,9 +91,11 @@ const ClientDetailPage = () => {
 
             setClient(clientResponse.data);
             setDebts(debtsResponse.data.data || []);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching client data:', error);
-            setError('Mijoz ma\'lumotlarini yuklashda xatolik yuz berdi');
+             const errorMsg = error.response?.data?.message || 'Mijoz ma\'lumotlarini yuklashda xatolik yuz berdi';
+            setError(errorMsg);
+            message.error(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -110,7 +112,6 @@ const ClientDetailPage = () => {
             message.error('Noto\'g\'ri mijoz ID formati');
             return;
         }
-
         setSubmitting(true);
         try {
             const formData = {
@@ -119,31 +120,24 @@ const ClientDetailPage = () => {
                 debt_sum: Number(values.debt_sum).toFixed(2),
                 total_debt_sum: Number(values.debt_sum).toFixed(2),
                 description: values.description.trim(),
-                images: values.images.length > 0 
-                    ? values.images.map(file => ({ image: file.url || "" }))
-                    : [{ image: "" }, { image: "" }],
+                images: values.images?.map(file => ({ image: file.originFileObj || file.url || "" })) || [],
                 debtor: id,
                 debt_status: "active"
             };
-
             console.log('Sending debt data:', formData);
-
-            const response = await API.post('/debts', formData, {
+            await API.post('/debts', formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
-
-            console.log('Debt creation response:', response);
-
             message.success('Nasiya muvaffaqiyatli qo\'shildi');
             setIsModalVisible(false);
             form.resetFields();
             fetchClientData();
         } catch (error: any) {
             console.error('Error adding debt:', error);
-            const errorMessage = error.response?.data?.error?.message || 'Nasiya qo\'shishda xatolik yuz berdi';
+            const errorMessage = error.response?.data?.error?.message || error.response?.data?.message || 'Nasiya qo\'shishda xatolik yuz berdi';
             message.error(errorMessage);
         } finally {
             setSubmitting(false);
@@ -155,7 +149,6 @@ const ClientDetailPage = () => {
             message.error('Noto\'g\'ri ID formati');
             return;
         }
-        
         setSubmitting(true);
         try {
             const formData = {
@@ -167,18 +160,13 @@ const ClientDetailPage = () => {
                 debtor_id: id,
                 debt_status: selectedDebt.status || "active"
             };
-
             console.log('Sending edit debt data:', formData);
-
-            const response = await API.put(`/debts/${selectedDebt.id}`, formData, {
+            await API.put(`/debts/${selectedDebt.id}`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
-
-            console.log('Edit response:', response);
-
             message.success('Nasiya muvaffaqiyatli yangilandi');
             setIsEditModalVisible(false);
             editForm.resetFields();
@@ -212,41 +200,24 @@ const ClientDetailPage = () => {
         return date.isValid() ? date.format('YYYY-MM-DD') : 'Invalid Date';
     };
 
-    const formatAmount = (amount: number | undefined) => {
-        if (amount === undefined || amount === null) return '0';
+    const formatAmount = (amount: number | undefined | null) => {
+        if (amount === undefined || amount === null) return '0.00';
         return amount.toLocaleString('uz-UZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
     if (loading) {
         return (
-            <div className="loading-container">
+            <div className="loading-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
                 <Spin size="large" />
             </div>
         );
     }
 
-    if (error) {
+    if (error || !client) {
         return (
-            <div className="error-container">
+            <div className="error-container" style={{ padding: '20px' }}>
                 <Alert
-                    message={error}
-                    type="error"
-                    showIcon
-                    action={
-                        <Button size="small" onClick={() => navigate('/clients')}>
-                            Orqaga
-                        </Button>
-                    }
-                />
-            </div>
-        );
-    }
-
-    if (!client) {
-        return (
-            <div className="error-container">
-                <Alert
-                    message="Mijoz topilmadi"
+                    message={error || "Mijoz topilmadi"}
                     type="error"
                     showIcon
                     action={
@@ -286,40 +257,44 @@ const ClientDetailPage = () => {
             <div className="debts-section">
                 <h2>Faol nasiyalar</h2>
                 <div className="debts-list">
-                    {debts.map((debt) => (
-                        <div 
-                            key={debt.id} 
-                            className="debt-card"
-                            onClick={() => handleDebtClick(debt)}
-                        >
-                            <div className="debt-info">
-                                <div className="debt-date">
-                                    {formatDate(debt.created_at)}
+                    {debts.length === 0 ? (
+                        <div className="no-debts-message" style={{textAlign: 'center', padding: '20px', color: '#888'}}>Faol nasiyalar mavjud emas.</div>
+                    ) : (
+                        debts.map((debt) => (
+                            <div 
+                                key={debt.id} 
+                                className="debt-card"
+                                onClick={() => handleDebtClick(debt)}
+                            >
+                                <div className="debt-info">
+                                    <div className="debt-date">
+                                        {formatDate(debt.created_at)}
+                                    </div>
+                                    <div className="debt-amount">
+                                        {formatAmount(debt.debt_sum)} so'm
+                                    </div>
                                 </div>
-                                <div className="debt-amount">
-                                    {formatAmount(debt.debt_sum)} so'm
+                                <div className="debt-due-date">
+                                    <span className="label">Keyingi to'lov:</span>
+                                    <span className="date">
+                                        {formatDate(debt.next_payment_date)}
+                                    </span>
                                 </div>
+                                <div className={`debt-status ${(debt.status || 'active').toLowerCase()}`}>
+                                    {debt.status || 'Active'}
+                                </div>
+                                <Button 
+                                    type="text"
+                                    icon={<EditOutlined />}
+                                    className="edit-button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDebtClick(debt);
+                                    }}
+                                />
                             </div>
-                            <div className="debt-due-date">
-                                <span className="label">Keyingi to'lov:</span>
-                                <span className="date">
-                                    {formatDate(debt.next_payment_date)}
-                                </span>
-                            </div>
-                            <div className={`debt-status ${(debt.status || 'active').toLowerCase()}`}>
-                                {debt.status || 'Active'}
-                            </div>
-                            <Button 
-                                type="text"
-                                icon={<EditOutlined />}
-                                className="edit-button"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDebtClick(debt);
-                                }}
-                            />
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </div>
 
@@ -329,7 +304,7 @@ const ClientDetailPage = () => {
                 onClick={() => setIsModalVisible(true)}
                 icon={<PlusOutlined />}
             >
-                Nasiya qo'shish
+                Nasiya qo'shish 
             </Button>
 
             <Modal
@@ -343,9 +318,7 @@ const ClientDetailPage = () => {
                     form={form}
                     layout="vertical"
                     onFinish={handleAddDebt}
-                    initialValues={{
-                        images: []
-                    }}
+                    initialValues={{ images: [] }}
                 >
                     <Form.Item
                         name="debt_sum"
@@ -383,12 +356,7 @@ const ClientDetailPage = () => {
                         name="images"
                         label="Rasmlar"
                         valuePropName="fileList"
-                        getValueFromEvent={(e) => {
-                            if (Array.isArray(e)) {
-                                return e;
-                            }
-                            return e?.fileList;
-                        }}
+                        getValueFromEvent={(e) => Array.isArray(e) ? e : e?.fileList}
                     >
                         <Upload
                             listType="picture-card"

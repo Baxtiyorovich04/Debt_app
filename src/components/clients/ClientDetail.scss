@@ -96,6 +96,8 @@
                     .edit-button {
                         opacity: 1;
                     }
+                    border-color: #1890ff;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
                 }
 
                 .edit-button {
@@ -104,6 +106,7 @@
                     right: 8px;
                     opacity: 0;
                     transition: opacity 0.3s ease;
+                    color: #8c8c8c;
                     
                     &:hover {
                         color: #1890ff;
@@ -117,11 +120,13 @@
 
                     .debt-date {
                         color: #666;
+                        font-size: 14px;
                     }
 
                     .debt-amount {
                         font-weight: 600;
                         color: #1890ff;
+                        font-size: 16px;
                     }
                 }
 
@@ -137,6 +142,7 @@
 
                     .date {
                         font-weight: 500;
+                        color: #333;
                     }
                 }
 
@@ -146,6 +152,7 @@
                     border-radius: 16px;
                     font-size: 12px;
                     font-weight: 500;
+                    text-transform: capitalize;
 
                     &.active {
                         background: #e6f7ff;
@@ -161,19 +168,33 @@
                         background: #fff1f0;
                         color: #f5222d;
                     }
+                    &.pending {
+                         background: #fffbe6;
+                         color: #faad14;
+                    }
                 }
+            }
+            .no-debts-message {
+                 text-align: center;
+                 padding: 20px;
+                 color: #888;
             }
         }
     }
 
     .add-debt-button {
         position: fixed;
-        bottom: 58px;
-        left: 87%;
-        height: 48px;
-        padding: 0 24px;
-        font-size: 16px;
-        border-radius: 24px;
+        bottom: 30px;
+        right: 30px;
+        height: 54px;
+        width: 54px;
+        border-radius: 50%;
+        padding: 0;
+        font-size: 24px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
     }
 } 

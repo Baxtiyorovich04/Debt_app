@@ -1,18 +1,12 @@
 import { useState, useEffect } from "react";
-import { Input, Layout, Menu, Drawer, DatePicker, Spin, Alert, Button } from "antd";
-import { SearchOutlined, CalendarOutlined, UserOutlined, PlusOutlined } from '@ant-design/icons';
+import { Layout, Button, Spin, message, Input } from "antd";
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { AiOutlineStar } from 'react-icons/ai';
-import { FaHome } from "react-icons/fa";
-import { FaUsersLine } from "react-icons/fa6";
-import { FaFolder } from "react-icons/fa";
-import { IoMdSettings } from "react-icons/io";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../utils/API";
+import MainLayout from "../layout/MainLayout";
 import './index.scss';
-import { message } from "antd";
-
-const { Sider, Content } = Layout;
 
 interface UserProfile {
     id: string;
@@ -37,184 +31,144 @@ interface Debtor {
 
 const ClientsPage = () => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const currentPath = location.pathname.split('/')[1] || 'home';
     const { token } = useAuth();
-    const [userData, setUserData] = useState<UserProfile | null>(null);
     const [debtors, setDebtors] = useState<Debtor[]>([]);
-    const [error, setError] = useState<string | null>(null);
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    const menuItems = [
-        {
-            key: 'home',
-            icon: <FaHome />,
-            label: 'Asosiy',
-            onClick: () => navigate('/home')
-        },
-        {
-            key: 'clients',
-            icon: <FaUsersLine />,
-            label: 'Mijozlar',
-            onClick: () => navigate('/clients')
-        },
-        {
-            key: 'reports',
-            icon: <FaFolder />,
-            label: 'Hisobot'
-        },
-        {
-            key: 'settings',
-            icon: <IoMdSettings />,
-            label: 'Sozlama'
+    const handleFilter = () => {
+        console.log("Filter button clicked");
+    };
+
+    const fetchDebtors = async () => {
+        if (!token) { 
+            setError("Authentication token not found.");
+            setLoading(false);
+            return;
         }
-    ];
+        setLoading(true);
+        setError(null);
+        try {
+            const params = searchTerm ? { search: searchTerm } : {};
+            const response = await API.get("/debtor", {
+                headers: { Authorization: `Bearer ${token}` },
+                params: params
+            });
+            setDebtors(response.data.data || []);
+        } catch (error: any) {
+            console.error("Error fetching debtors:", error);
+            const errorMsg = error.response?.data?.message || "Mijozlar ma'lumotlarini yuklashda xatolik yuz berdi";
+            setError(errorMsg);
+            message.error(errorMsg);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const response = await API.get("/auth/profile", {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-                setUserData(response.data.data);
-            } catch (error: any) {
-                console.error("Error fetching user data:", error);
-                setError("Foydalanuvchi ma'lumotlarini yuklashda xatolik yuz berdi");
-            }
-        };
-
-        const fetchDebtors = async () => {
-            setLoading(true);
-            try {
-                const response = await API.get("/debtor", {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-                setDebtors(response.data.data || []);
-            } catch (error: any) {
-                console.error("Error fetching debtors:", error);
-                setError("Mijozlar ma'lumotlarini yuklashda xatolik yuz berdi");
-                message.error("Mijozlar ma'lumotlarini yuklashda xatolik yuz berdi");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (token) {
-            fetchUserData();
-            fetchDebtors();
-        }
-    }, [token]);
+        fetchDebtors();
+    }, [token, searchTerm]);
 
     const handleClientClick = (debtorId: string) => {
         navigate(`/clients/${debtorId}`);
     };
 
     const formatAmount = (amount: number | undefined | null) => {
-        if (amount === undefined || amount === null) {
-            return '0.00';
-        }
-        return amount.toLocaleString('uz-UZ', { 
-            minimumFractionDigits: 2, 
-            maximumFractionDigits: 2 
-        });
+        const num = amount ?? 0;
+        return num.toLocaleString('uz-UZ');
     };
 
     const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('uz-UZ', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+        if (!dateString) return '-';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('uz-UZ', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } catch (e) {
+            console.error("Error formatting date:", dateString, e);
+            return 'Invalid Date';
+        }
     };
 
-    if (!userData) {
-        return <Spin size="large" className="loading-spinner" />;
-    }
+    const filteredDebtors = debtors;
 
     return (
-        <Layout className="home-layout">
-            <Sider width={250} className="sidebar">
-                <div className="logo">
-                    <h2>Debt App</h2>
+        <MainLayout>
+            <div className="clients-page-content">
+                <div className="search-container">
+                    <Input
+                        prefix={<SearchOutlined />}
+                        placeholder="Mijozlarni qidirish..."
+                        className="search-input"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <button className="filter-button" onClick={handleFilter}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 7H21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                            <path d="M6 12H18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                            <path d="M10 17H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                    </button>
                 </div>
-                <Menu
-                    theme="light"
-                    mode="inline"
-                    selectedKeys={[currentPath]}
-                    items={menuItems}
-                />
-            </Sider>
-            <Layout>
-                <header className="header">
-                    <div className="user-info">
-                        <UserOutlined className="avatar" />
-                        <span className="username">{userData.login}</span>
-                    </div>
-                    <CalendarOutlined className="calendar-icon" onClick={() => setIsDrawerOpen(true)} />
-                </header>
-                <Content className="content">
-                    <div className="clients-page">
-                        <div className="clients-header">
-                            <h1>Mijozlar</h1>
-                            <Button 
-                                type="primary" 
-                                icon={<PlusOutlined />}
-                                onClick={() => navigate('/clients/add')}
-                            >
-                                Mijoz qo'shish
-                            </Button>
-                        </div>
 
-                        {loading ? (
-                            <div className="clients-loading">
-                                <Spin size="large" />
-                            </div>
-                        ) : error ? (
-                            <div className="clients-error">
-                                {error}
-                            </div>
+                {loading ? (
+                    <div className="clients-loading">
+                        <Spin size="large" />
+                    </div>
+                ) : error ? (
+                    <div className="clients-error">
+                        {error}
+                    </div>
+                ) : (
+                    <div className="clients-list">
+                        {filteredDebtors.length === 0 ? (
+                            <div className="no-clients-message">Mijozlar topilmadi.</div>
                         ) : (
-                            <div className="clients-list">
-                                {debtors.map((debtor) => (
-                                    <div 
-                                        key={debtor.id} 
-                                        className="client-card"
-                                        onClick={() => handleClientClick(debtor.id)}
-                                    >
-                                        <div className="client-info">
-                                            <h3>{debtor.full_name}</h3>
-                                            <p className="phone">{debtor.phone_number}</p>
-                                            <p className="debt">Nasiya: {formatAmount(debtor.debt_sum)} so'm</p>
-                                            <p className="date">Qo'shilgan: {formatDate(debtor.created_at)}</p>
-                                        </div>
-                                        <button 
-                                            className="favorite-button"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                // Handle favorite toggle
-                                            }}
-                                        >
-                                            <AiOutlineStar className="star-icon" />
-                                        </button>
+                            filteredDebtors.map((debtor) => (
+                                <div 
+                                    key={debtor.id} 
+                                    className="client-card"
+                                    onClick={() => handleClientClick(debtor.id)}
+                                >
+                                    <div className="client-info">
+                                        <h3 className="client-name">{debtor.full_name || 'N/A'}</h3>
+                                        <p className="client-phone">{debtor.phone_number || '-'}</p>
+                                        <p className="client-debt">
+                                            Jami nasiya:
+                                            <span className={`amount ${debtor.debt_sum < 0 ? 'negative' : ''}`}>
+                                                {formatAmount(debtor.debt_sum)} so'm
+                                            </span>
+                                        </p>
                                     </div>
-                                ))}
-                            </div>
+                                    <button 
+                                        className="favorite-button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            console.log('Toggle favorite for:', debtor.id);
+                                        }}
+                                    >
+                                        <AiOutlineStar className="star-icon" />
+                                    </button>
+                                </div>
+                            ))
                         )}
                     </div>
-                </Content>
-            </Layout>
-
-            <Drawer title="Kalendar" placement="right" onClose={() => setIsDrawerOpen(false)} open={isDrawerOpen}>
-                <DatePicker style={{ width: "100%" }} />
-                <h1>coming soon....</h1>
-            </Drawer>
-        </Layout>
+                )}
+                <Button 
+                    type="primary" 
+                    className="add-client-button" 
+                    icon={<PlusOutlined />}
+                    onClick={() => navigate('/clients/add')}
+                >
+                    Yaratish
+                </Button>
+            </div>
+        </MainLayout>
     );
 };
 

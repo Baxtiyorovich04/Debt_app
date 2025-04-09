@@ -1,0 +1,70 @@
+.settings-page {
+    background-color: #f0f2f5; // Light background for the page
+    padding: 24px;
+    height: 100%;
+
+    .settings-main-title {
+        margin-bottom: 32px;
+        font-weight: 600;
+    }
+
+    .settings-group {
+        margin-bottom: 24px;
+        background-color: #ffffff; // White background for sections
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        overflow: hidden; // Ensure border-radius is applied correctly
+
+        .settings-section-title {
+            font-size: 14px;
+            color: #8c8c8c; // Grey color for section titles
+            padding: 12px 24px;
+            margin: 0;
+            font-weight: 500;
+            background-color: #fafafa; // Slightly different background for section header
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .ant-list-item {
+            padding: 16px 24px !important;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-bottom: 1px solid #f0f0f0; // Separator line
+
+            &:last-child {
+                border-bottom: none; // No border for the last item
+            }
+
+            &:hover {
+                background-color: #f5f5f5; // Hover effect
+            }
+
+            .ant-list-item-meta {
+                align-items: center;
+            }
+
+            .ant-list-item-meta-title {
+                margin: 0 !important;
+                font-size: 16px;
+                color: #262626;
+            }
+
+            .settings-item-icon {
+                color: #bfbfbf; // Grey color for icons
+                font-size: 16px;
+            }
+            
+            // Specific styles for the logout item
+            &.logout-item {
+                .ant-list-item-meta-title {
+                    .logout-text {
+                        color: #ff4d4f; // Red color for logout text
+                    }
+                }
+                .settings-item-icon {
+                    color: #ff4d4f; // Red color for logout icon
+                }
+            }
+        }
+    }
+} 
